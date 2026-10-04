@@ -7,6 +7,6 @@ RUN ./mvnw -Pnative native:compile -DskipTests
 # Run stage: no JVM needed, just a small glibc base
 FROM debian:bookworm-slim
 WORKDIR /app
-COPY --from=builder /app/target/<artifactId> app
+COPY --from=builder /app/target/example-spring-boot app
 EXPOSE 8080
 ENTRYPOINT ["./app"]
