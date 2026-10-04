@@ -1,11 +1,12 @@
-# Build stage
-FROM container-registry.oracle.com/graalvm/jdk-community:17.0.9 AS builder
+# Build stage: compile to a native binary
+FROM ghcr.io/graalvm/native-image-community:17 AS builder
 WORKDIR /app
 COPY . .
-RUN ./mvnw package -DskipTests
+RUN ./mvnw -Pnative native:compile -DskipTests
 
-# Run stage
-FROM eclipse-temurin:17-jre-alpine
+# Run stage: no JVM needed, just a small glibc base
+FROM debian:bookworm-slim
 WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
-CMD ["java", "-jar", "app.jar"]
+COPY --from=builder /app/target/<artifactId> app
+EXPOSE 8080
+ENTRYPOINT ["./app"]
